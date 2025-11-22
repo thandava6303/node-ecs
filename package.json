@@ -32,10 +32,4 @@
     "rollbar": "^2.25.0",
     "swagger-ui-express": "^4.4.0"
   }
-  {
-  "scripts": {
-    "start": "node app.js",
-    "build": "echo 'Nothing to build for backend' "
-  }
-}
 }
