@@ -1,0 +1,35 @@
+{
+  "name": "minmind-node",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start:dev": "DEBUG=knex:query NODE_ENV=development nodemon ./bin/www",
+    "start:staging": "NODE_ENV=staging nodemon ./bin/www",
+    "test": "NODE_PORT=8045 NODE_ENV=test node_modules/.bin/jest  --ci --verbose --forceExit --detectOpenHandles",
+    "dbmigrate:test": "NODE_ENV=test node_modules/knex/bin/cli.js migrate:latest",
+    "dbmigrate:dev": "NODE_ENV=development node_modules/knex/bin/cli.js migrate:latest",
+    "dbmigrate:staging": "NODE_ENV=staging node_modules/knex/bin/cli.js migrate:latest",
+    "dbmigrate:production": "NODE_ENV=production node_modules/knex/bin/cli.js migrate:latest",
+    "dbseed:test": "NODE_ENV=test node_modules/knex/bin/cli.js seed:run",
+    "dbseed:dev": "NODE_ENV=development node_modules/knex/bin/cli.js seed:run",
+    "dbseed:staging": "NODE_ENV=staging node_modules/knex/bin/cli.js seed:run",
+    "dbseed:production": "NODE_ENV=production node_modules/knex/bin/cli.js seed:run"
+  },
+  "dependencies": {
+    "bookshelf": "^1.2.0",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^16.0.1",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "joi": "^17.6.0",
+    "knex": "^0.21.0",
+    "luxon": "^2.4.0",
+    "morgan": "~1.9.1",
+    "nodemon": "^2.0.16",
+    "pg": "^8.7.3",
+    "pug": "^3.0.2",
+    "rollbar": "^2.25.0",
+    "swagger-ui-express": "^4.4.0"
+  }
+}

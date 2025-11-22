@@ -1,0 +1,65 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - mv .env.dev .env.$NODEENV
+      - sed -i -e "s/NODEENV/$NODEENV/g" .env.$NODEENV
+      - sed -i "s/NODEENVVAULT/$NODEENVVAULT/g" .env.$NODEENV
+      - sed -i "s/APPDOMAIN/$APPDOMAIN/g" .env.$NODEENV
+      - sed -i "s/NODE_ENV/$NODEENV/g" StartupScript.sh
+      - sed -i "s/APP_PORT/$APP_PORT/g" .env.$NODEENV
+      - sed -i "s/DBUSER/$DBUSER/g" .env.$NODEENV
+      - sed -i "s/DBNAME/$DBNAME/g" .env.$NODEENV
+      - sed -i "s/DBHOST/$DBHOST/g" .env.$NODEENV
+      - sed -i "s/DBPASS/$DBPASS/g" .env.$NODEENV
+      - sed -i "s/PORT_1/$PORT_1/g" .env.$NODEENV
+      - sed -i "s/SENDGRIDAPIKEY/$SENDGRIDAPIKEY/g" .env.$NODEENV
+      - sed -i "s/SENDGRIDFROM/$SENDGRIDFROM/g" .env.$NODEENV
+      - sed -i "s/APP_URL/$APP_URL/g" .env.$NODEENV
+      - sed -i "s/AWSSECRETKEY/$AWSSECRETKEY/g" .env.$NODEENV
+      - sed -i "s/AWSACCESSKEY/$AWSACCESSKEY/g" .env.$NODEENV
+      - sed -i "s/AWS_DEFAULT_REGION/$AWS_DEFAULT_REGION/g" .env.$NODEENV
+      - sed -i "s/AWSBUCKET/$AWSBUCKET/g" .env.$NODEENV
+      - sed -i "s/JWTSECRETKEY/$JWTSECRETKEY/g" .env.$NODEENV
+      - sed -i "s/AWSCLOUDFRONTURL/$AWSCLOUDFRONTURL/g" .env.$NODEENV
+      - sed -i "s#AWSPUBLICURL#$AWSPUBLICURL#g" .env.$NODEENV
+      - sed -i "s/STRIPEAPIKEY/$STRIPEAPIKEY/g" .env.$NODEENV
+      - sed -i "s/TWILIOFROM/$TWILIOFROM/g" .env.$NODEENV
+      - sed -i "s/TWILIOACCOUNTSID/$TWILIOACCOUNTSID/g" .env.$NODEENV
+      - sed -i "s/TWILIOAUTHTOKEN/$TWILIOAUTHTOKEN/g" .env.$NODEENV
+      - mv appspec_$NODEENV.yaml appspec.yaml
+      - mv taskdef_$NODEENV.json taskdef.json
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - echo $AWSDEFAULTREGION
+      - $(aws ecr get-login --region $AWSDEFAULTREGION --no-include-email)
+      - REPOSITORY_URI=217287174069.dkr.ecr.us-west-2.amazonaws.com/$ECR_REPO
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 2-8)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+  build:
+    commands:
+      - echo Build started on 'date'
+      - echo Building the Docker image..
+      - echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - printf '[{"name":ECR_REPO,"imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+artifacts:
+  files:
+    - 'image*.json'
+    - 'appspec.yaml'
+    - 'taskdef.json'
+  secondary-artifacts:
+    DefinitionArtifact:
+      files:
+        - appspec.yaml
+        - taskdef.json
+    ImageArtifact:
+      files:
+        - imageDetail.json
