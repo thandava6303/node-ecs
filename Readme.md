@@ -1,4 +1,4 @@
-Logger and Rollbar -> (utils/custom.logger.js)
+Loogger and Rollbar -> (utils/custom.logger.js)
 
 We will be using a custom logger that can be controlled from one place. It uses chalk to differentiate between the different type of messages.
 
